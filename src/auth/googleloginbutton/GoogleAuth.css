@@ -1,0 +1,13 @@
+.google-icon-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .google-icon-btn img {
+    width: 40px;       /* adjust size */
+    height: 40px;
+    margin-top: 5px;
+  }
+  
