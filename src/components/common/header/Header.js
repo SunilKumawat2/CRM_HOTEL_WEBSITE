@@ -8,7 +8,7 @@ const Header = () => {
   return (
     <header className="hotel-header">
       <div className="container">
-        {/* Logo */}
+        {/* ---- Logo */}
         <div onClick={()=>navigate("/")} className="logo">
           <span>Grand</span>Hotel
         </div>
