@@ -26,4 +26,17 @@ export const Get_Rooms_Details = async (_id) => {
   }
 };
 
+// 🟢 Get Single Room Details
+export const Get_Rooms_Related = async (_id) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}rooms/${_id}/related`
+    );
+    return response.data; // ✅ return data directly
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+
 

@@ -5,6 +5,7 @@ import Login from '../auth/login/Login'
 import Otp_Verify from '../auth/otp_verify/Otp_Verify'
 import Rooms from '../components/pages/rooms/Rooms'
 import RoomDetails from '../components/pages/rooms/RoomDetails'
+import Related_Rooms from '../components/pages/rooms/Related_Rooms'
 
 const AllRoutes = () => {
   return (
@@ -15,6 +16,7 @@ const AllRoutes = () => {
         <Route path='/otp-verify' element={<Otp_Verify/>}/>
         <Route path='/rooms' element={<Rooms/>}/>
         <Route path='/room-details/:_id' element={<RoomDetails/>}/>
+        <Route path='/related-rooms/:_id' element={<Related_Rooms/>}/>
       </Routes>
     </div>
   )

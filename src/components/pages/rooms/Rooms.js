@@ -11,10 +11,12 @@ import "../../../assets/style.css";
 import Header from "../../common/header/Header";
 import Footer from "../../common/footer/Footer";
 import { Get_Rooms_List } from "../../../api/global/Global"; // adjust path
-import img1 from "../../../assets/images/login_bg.jpg"
+import img1 from "../../../assets/images/login_bg.jpg";
 import { useNavigate } from "react-router-dom";
+import { IMG_BASE_URL } from "../../../config/Config";
+
 const Rooms = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     roomType: "",
     roomView: "",
@@ -34,6 +36,7 @@ const Rooms = () => {
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // 🔹 Fetch rooms whenever filters change
   useEffect(() => {
@@ -74,9 +77,22 @@ const Rooms = () => {
     <>
       <Header />
 
+      <button
+        className="filter-toggle-btn"
+        onClick={() => setIsFilterOpen(!isFilterOpen)}
+      >
+        {isFilterOpen ? "Close Filters ✖" : "Filter Rooms ☰"}
+      </button>
       <div className="rooms-page">
         {/* ================= SIDEBAR ================= */}
-        <aside className="rooms-sidebar">
+
+        <aside className={`rooms-sidebar ${isFilterOpen ? "open" : ""}`}>
+          <button
+            className="filter-close-btn"
+            onClick={() => setIsFilterOpen(false)}
+          >
+            ✕
+          </button>
           <h2>Filter Rooms</h2>
 
           {/* Room Type */}
@@ -163,7 +179,7 @@ const Rooms = () => {
                       "amenities",
                       e.target.checked
                         ? [...filters.amenities, a]
-                        : filters.amenities.filter((x) => x !== a)
+                        : filters.amenities.filter((x) => x !== a),
                     )
                   }
                 />
@@ -195,64 +211,80 @@ const Rooms = () => {
             <p>No rooms found for selected filters.</p>
           )}
 
-          {rooms && rooms?.map((room) => (
-            <div key={room._id} className="room-card">
-              <img src={img1} alt={room.roomType} />
+          {rooms &&
+            rooms?.map((room) => (
+              <div key={room._id} className="room-card">
+                {room && room?.images[0] ? (
+                  <img
+                    src={
+                      room?.images?.length > 0
+                        ? `${IMG_BASE_URL}${room.images[0]}`
+                        : img1
+                    }
+                    alt={room?.roomType}
+                  />
+                ) : (
+                  <img src={img1} alt={room.roomType} />
+                )}
 
-              <div className="room-content">
-                <h3>{room?.roomType} Room</h3>
-                <p className="room-desc">{room?.description}</p>
+                <div className="room-content">
+                  <h3>{room?.roomType} Room</h3>
+                  <p className="room-desc" 
+                  dangerouslySetInnerHTML={{ __html: room.description }}/>
 
-                <div className="room-meta">
-                  <span>
-                    <FaUsers /> {room?.maxAdults} Guests
-                  </span>
-                  <span>
-                    <FaBed /> {room?.roomView} View
-                  </span>
-                </div>
-
-                <div className="room-amenities">
-                  {room?.amenities?.map((a) => (
-                    <span key={a}>
-                      {a == "WiFi" && <FaWifi />}
-                      {a == "TV" && <FaTv />}
-                      {a == "Jacuzzi" && <FaSwimmer />}
-                      {a == "Mini Bar" && <FaGlassMartiniAlt />}
-                      {a == "Balcony" && <FaBed />}
-                      {a}
+                  <div className="room-meta">
+                    <span>
+                      <FaUsers /> {room?.maxAdults} Guests
                     </span>
-                  ))}
-                </div>
-
-                <div className="room-footer">
-                  <div className="price">
-                    {room?.discountedPrice > 0 ? (
-                      <>
-                        <span className="old-price">${room?.baseRate}</span>
-
-                        <span className="new-price">
-                          ${getFinalPrice(room)}
-                        </span>
-
-                        <span className="per-night">/night</span>
-                        <span className="discount-badge">
-                          {getDiscountPercent(room)}% OFF
-                        </span>
-                      </>
-                    ) : (
-                      <span className="new-price">${room?.baseRate}</span>
-                    )}
-
+                    <span>
+                      <FaBed /> {room?.roomView} View
+                    </span>
                   </div>
 
+                  <div className="room-amenities">
+                    {room?.amenities?.map((a) => (
+                      <span key={a}>
+                        {a == "WiFi" && <FaWifi />}
+                        {a == "TV" && <FaTv />}
+                        {a == "Jacuzzi" && <FaSwimmer />}
+                        {a == "Mini Bar" && <FaGlassMartiniAlt />}
+                        {a == "Balcony" && <FaBed />}
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="room-footer">
+                    <div className="price">
+                      {room?.discountedPrice > 0 ? (
+                        <>
+                          <span className="old-price">${room?.baseRate}</span>
+
+                          <span className="new-price">
+                            ${getFinalPrice(room)}
+                          </span>
+
+                          <span className="per-night">/night</span>
+                          <span className="discount-badge">
+                            {getDiscountPercent(room)}% OFF
+                          </span>
+                        </>
+                      ) : (
+                        <span className="new-price">${room?.baseRate}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    className="book-btn"
+                    onClick={() => navigate(`/room-details/${room?._id}`)}
+                    style={{ borderRadius: "10px", marginTop: "10px" }}
+                  >
+                    View Room
+                  </button>
                 </div>
-                
-                  <button className="book-btn" onClick={() => navigate(`/room-details/${room?._id}`)}
-                   style={{borderRadius:"10px",marginTop:"10px"}}>View Room</button>
               </div>
-            </div>
-          ))}
+            ))}
         </main>
       </div>
 

@@ -1,20 +1,22 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="hotel-header">
       <div className="container">
         {/* Logo */}
-        <div className="logo">
+        <div onClick={()=>navigate("/")} className="logo">
           <span>Grand</span>Hotel
         </div>
 
         {/* Desktop Navigation */}
         <nav className={`nav ${menuOpen ? "open" : ""}`}>
           <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#rooms" onClick={() => setMenuOpen(false)}>Rooms</a>
+          <Link to = "/rooms" onClick={() => setMenuOpen(false)}>Rooms</Link>
           <a href="#services" onClick={() => setMenuOpen(false)}>Services</a>
           <a href="#gallery" onClick={() => setMenuOpen(false)}>Gallery</a>
           <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
@@ -25,7 +27,7 @@ const Header = () => {
 
         {/* Desktop CTA */}
         <div className="header-btn">
-          <button>Book Now</button>
+          <button onClick={()=>navigate("/otp-send")}>Sign In</button>
         </div>
 
         {/* Hamburger */}
