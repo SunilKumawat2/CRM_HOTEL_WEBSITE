@@ -35,6 +35,7 @@ const Rooms = () => {
   });
 
   const [rooms, setRooms] = useState([]);
+  console.log("setRoom", rooms?.isAvailable);
   const [loading, setLoading] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -229,8 +230,10 @@ const Rooms = () => {
 
                 <div className="room-content">
                   <h3>{room?.roomType} Room</h3>
-                  <p className="room-desc" 
-                  dangerouslySetInnerHTML={{ __html: room.description }}/>
+                  {/* <p
+                    className="room-desc"
+                    dangerouslySetInnerHTML={{ __html: room.description }}
+                  /> */}
 
                   <div className="room-meta">
                     <span>
@@ -274,14 +277,28 @@ const Rooms = () => {
                       )}
                     </div>
                   </div>
-
-                  <button
-                    className="book-btn"
-                    onClick={() => navigate(`/room-details/${room?._id}`)}
-                    style={{ borderRadius: "10px", marginTop: "10px" }}
-                  >
-                    View Room
-                  </button>
+                  {room?.isAvailable ? (
+                    <button
+                      className="book-btn"
+                      disabled
+                      onClick={() => navigate(`/room-details/${room?._id}`)}
+                      style={{
+                        borderRadius: "10px", marginTop: "10px",
+                        // backgroundColor: "#ccc",
+                        cursor: "not-allowed",
+                      }}
+                    >
+                      Booked ✓
+                    </button>
+                  ) : (
+                    <button
+                      className="book-btn"
+                      onClick={() => navigate(`/room-details/${room?._id}`)}
+                      style={{ borderRadius: "10px", marginTop: "10px" }}
+                    >
+                      View Room
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

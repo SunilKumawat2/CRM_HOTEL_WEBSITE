@@ -2,8 +2,10 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import "../../auth/Auth.css"; // import the styles
 import GoogleLoginButton from "../googleloginbutton/GoogleLoginButton";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [identifier, setIdentifier] = useState("");
   const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -75,8 +77,12 @@ const Login = () => {
     try {
       if (isEmail) {
         const res = await axios.post("http://localhost:4005/crm/api/user-otp-verify", { email: identifier, otp: otpCode });
-        localStorage.setItem("token", res.data.data.token);
+        localStorage.setItem("user_token", res.data.data.token);
+         localStorage.setItem("user_id", res.data.data.user.id);
+         localStorage.setItem("user_phone", res.data.data.user.phone);
+        console.log("res.data.data",res)
         setMessage("Login successful");
+         navigate("/")
       } else if (confirmationResult) {
         const result = await confirmationResult.confirm(otpCode);
         const idToken = await result.user.getIdToken();
