@@ -14,15 +14,31 @@ import "swiper/css/thumbs";
 import { IMG_BASE_URL } from "../../../config/Config";
 import MotionLoader from "../../common/motionloader/MotionLoader";
 import { createRazorpayOrder, verifyRazorPayPayment } from "../../../api/rooms/Rooms";
+import { toast } from "react-toastify";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { addMonths } from "date-fns";
 
 const RoomDetails = () => {
   const navigate = useNavigate();
   const { _id } = useParams(); // 🔑 get ID from URL
   const [room, setRoom] = useState(null);
-  console.log("setRoom_setRoom",room)
+  console.log("setRoom_setRoom", room)
   const [related_room, setRelatedRoom] = useState([]);
   const [loading, setLoading] = useState(true);
   const get_user_id = localStorage.getItem("user_id")
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [range, setRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: 'selection'
+    }
+  ]);
+
+
   useEffect(() => {
     fetchRoomDetails();
     fetchRoomRelated();
@@ -52,80 +68,133 @@ const RoomDetails = () => {
     }
   };
 
- const handleBookNow = async () => {
-  try {
-    if (!room) return;
+  const handleBookNow = async () => {
+    try {
+      // ✅ CHECK DATES FIRST
+      if (!checkInDate || !checkOutDate) {
+        toast.error("Please select check-in and check-out dates");
+        return;
+      }
 
-    const userId = localStorage.getItem("user_id"); 
-    if (!userId) {
-      alert("User not logged in!");
-      return;
+      if (!room) return;
+
+      const userId = localStorage.getItem("user_id");
+      if (!userId) {
+        toast.error("User not logged in!");
+        return;
+      }
+
+      // Step 1: Create order on backend
+      const orderData = await createRazorpayOrder(
+        room._id,
+        userId,
+        checkInDate,
+        checkOutDate
+      );
+
+      if (!orderData.success) {
+        toast.error(orderData.message || "Failed to create order");
+        return;
+      }
+
+      const order = orderData.order;
+      const paymentId = orderData.paymentId;
+
+      const options = {
+        key: "rzp_test_SUD3gl16fK5nSh",
+        amount: order.amount,
+        currency: order.currency,
+        name: "Grand Hotel",
+        description: `Booking for ${room.roomType} #${room.roomNumber}`,
+        order_id: order.id,
+
+        handler: async function (response) {
+          try {
+            const verify = await verifyRazorPayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              paymentId: paymentId,
+            });
+
+            if (verify.success) {
+              toast.success("Payment successful! Room booked.");
+              navigate("/booking-success");
+            } else {
+              toast.error("Payment verification failed!");
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            toast.error("Payment verification failed!");
+          }
+        },
+
+        prefill: {
+          name: localStorage.getItem("user_name") || "",
+          email: localStorage.getItem("user_email") || "",
+          contact: localStorage.getItem("user_phone") || "",
+        },
+
+        theme: { color: "#007BFF" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+      rzp.on("payment.failed", function (response) {
+        console.error("Payment Failed:", response.error);
+        toast.error("Payment failed! Please try again.");
+      });
+
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error(err.message || "Something went wrong!");
     }
+  };
 
-    // Step 1: Create order on backend
-    const orderData = await createRazorpayOrder(room._id, userId);
-    if (!orderData.success) {
-      alert(orderData.message || "Failed to create order");
-      return;
-    }
-    const order = orderData.order;
-    const paymentId = orderData.paymentId; // payment document ID
+  const getDisabledDates = (bookedDates) => {
+    let disabled = [];
 
-    // Step 2: Razorpay options
-    const options = {
-      key: "rzp_test_SUD3gl16fK5nSh",
-      amount: order.amount,
-      currency: order.currency,
-      name: "Grand Hotel",
-      description: `Booking for ${room.roomType} #${room.roomNumber}`,
-      order_id: order.id,
-     handler: async function (response) {
-  try {
-    const verify = await verifyRazorPayPayment({
-      razorpay_order_id: response.razorpay_order_id,
-      razorpay_payment_id: response.razorpay_payment_id,
-      razorpay_signature: response.razorpay_signature,
-      paymentId: paymentId,
+    bookedDates.forEach(({ checkIn, checkOut }) => {
+      let current = new Date(checkIn);
+      let end = new Date(checkOut);
+
+      while (current <= end) {
+        disabled.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+      }
     });
 
-    if (verify.success) {
-      alert("Payment successful! Room booked.");
-      navigate("/booking-success");
-    } else {
-      alert("Payment verification failed!");
-    }
-  } catch (err) {
-    console.error("Verification error:", err);
-    alert("Payment verification failed!");
-  }
-},
-      prefill: {
-        name: localStorage.getItem("user_name") || "",
-        email: localStorage.getItem("user_email") || "",
-        contact: localStorage.getItem("user_phone") || "",
-      },
-      theme: { color: "#007BFF" },
-    };
+    return disabled;
+  };
+  const disabledDates = room ? getDisabledDates(room.bookedDates || []) : [];
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+  const getTotalNights = () => {
+    if (!checkInDate || !checkOutDate) return 0;
 
-    rzp.on("payment.failed", function (response) {
-      console.error("Payment Failed:", response.error);
-      alert("Payment failed! Please try again.");
-    });
-  } catch (err) {
-    console.error("Error creating Razorpay order:", err);
-    alert(err.message || "Something went wrong during payment!");
-  }
-};
+    const diffTime = checkOutDate - checkInDate;
+    const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return nights > 0 ? nights : 0;
+  };
+
+  const getTotalPrice = () => {
+    const nights = getTotalNights();
+
+    const pricePerNight =
+      room.discountedPrice > 0
+        ? room.baseRate - room.discountedPrice
+        : room.baseRate;
+
+    return nights * pricePerNight;
+  };
 
   if (loading) return <p>Loading room details...</p>;
   if (!room) return <p>No room data found</p>;
 
   const amount = room.discountedPrice > 0
-  ? room.baseRate - room.discountedPrice
-  : room.baseRate;
+    ? room.baseRate - room.discountedPrice
+    : room.baseRate;
 
   // 🔹 STATIC HOTEL VIDEOS
   const hotelVideos = [
@@ -303,6 +372,62 @@ const RoomDetails = () => {
               <strong>Housekeeping:</strong> {room.housekeepingStatus}
             </p>
           </div>
+          <div className="section">
+            <h3>Select Dates</h3>
+
+            {/* 🔥 Selected Dates Display */}
+            <div className="date-summary">
+              <div className="date-box">
+                <label>Check-in</label>
+                <p>
+                  {checkInDate
+                    ? checkInDate.toLocaleDateString()
+                    : "Select date"}
+                </p>
+              </div>
+
+              <div className="date-box">
+                <label>Check-out</label>
+                <p>
+                  {checkOutDate
+                    ? checkOutDate.toLocaleDateString()
+                    : "Select date"}
+                </p>
+              </div>
+            </div>
+
+            <div className="calendar-box">
+              <DateRange
+                ranges={range}
+                onChange={(item) => {
+                  setRange([item.selection]);
+                  setCheckInDate(item.selection.startDate);
+                  setCheckOutDate(item.selection.endDate);
+                }}
+                minDate={new Date()}
+                maxDate={addMonths(new Date(), 4)}
+                disabledDates={disabledDates}
+                months={2}
+                direction="horizontal"
+                showDateDisplay={false} // ❌ default wala hide karo
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#007bff"]}
+              />
+            </div>
+          </div>
+          <div className="price-summary">
+            <p>
+              <strong>Nights:</strong> {getTotalNights()}
+            </p>
+
+            <p>
+              <strong>Price / Night:</strong> ₹{amount}
+            </p>
+
+            <p>
+              <strong>Total Price:</strong> ₹{getTotalPrice()}
+            </p>
+          </div>
           <div className="row" style={{ display: "flex", gap: "10px" }}>
             <span style={{ flex: 1 }}>
               <button className="book-btn" style={{ width: "100%" }}>
@@ -310,9 +435,9 @@ const RoomDetails = () => {
               </button>
             </span>
             <span style={{ flex: 1 }}>
-              <button className="btn btn-primary w-100" onClick={handleBookNow}>
-              Book Now
-            </button>
+              <button className="book-btn w-100" onClick={handleBookNow}>
+                Book Now
+              </button>
             </span>
           </div>
           {/* ================= RELATED ROOMS ================= */}
