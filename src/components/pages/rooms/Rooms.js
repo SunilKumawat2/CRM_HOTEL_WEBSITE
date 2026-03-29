@@ -206,7 +206,12 @@ const Rooms = () => {
 
         {/* ================= ROOMS ================= */}
         <main className="rooms-list">
-          {loading && <p>Loading rooms...</p>}
+          {loading &&     <div className="d-flex justify-content-center align-items-center" style={{ height: "70vh" }}>
+        <div className="text-center">
+          <div className="spinner-border text-primary" style={{ width: "3rem", height: "3rem" }}></div>
+          <p className="mt-3 fw-semibold">Loading your bookings...</p>
+        </div>
+      </div>}
 
           {!loading && rooms.length === 0 && (
             <p>No rooms found for selected filters.</p>
@@ -219,7 +224,7 @@ const Rooms = () => {
                   <img
                     src={
                       room?.images?.length > 0
-                        ? `${IMG_BASE_URL}${room.images[0]}`
+                        ? `${IMG_BASE_URL}/uploads/photos/${room.images[0]}`
                         : img1
                     }
                     alt={room?.roomType}

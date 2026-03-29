@@ -7,6 +7,8 @@ import Rooms from '../components/pages/rooms/Rooms'
 import RoomDetails from '../components/pages/rooms/RoomDetails'
 import Related_Rooms from '../components/pages/rooms/Related_Rooms'
 import User_Profile from '../components/pages/user_profile/User_Profile'
+import Booking_Success from '../components/pages/booking/booking_sucess/Booking_Sucess'
+import My_Booking from '../components/pages/booking/my_booking/My_Booking'
 
 const AllRoutes = () => {
   return (
@@ -19,6 +21,8 @@ const AllRoutes = () => {
         <Route path='/room-details/:_id' element={<RoomDetails/>}/>
         <Route path='/related-rooms/:_id' element={<Related_Rooms/>}/>
         <Route path='/user-profile' element={<User_Profile/>}/>
+        <Route path='/booking-success' element={<Booking_Success/>}/>
+        <Route path='/my-bookings' element={<My_Booking/>}/>
       </Routes>
     </div>
   )

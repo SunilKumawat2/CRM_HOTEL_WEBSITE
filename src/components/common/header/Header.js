@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import user_profile from "../../../assets/images/user_profile.jpg"
 const Header = () => {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className={`nav ${menuOpen ? "open" : ""}`}>
           <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#rooms" onClick={() => setMenuOpen(false)}>Rooms</a>
+          <Link to="/rooms" onClick={() => setMenuOpen(false)}>Rooms</Link>
           <a href="#services" onClick={() => setMenuOpen(false)}>Services</a>
           <a href="#gallery" onClick={() => setMenuOpen(false)}>Gallery</a>
           <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
@@ -64,7 +64,7 @@ const Header = () => {
               {/* Dropdown Menu */}
               {profileDropdown && (
                 <div className="profile-dropdown">
-                  <div className="dropdown-item" onClick={() => navigate("/profile")}>
+                  <div className="dropdown-item" onClick={() => navigate("/user-profile")}>
                     My Profile
                   </div>
                   <div className="dropdown-item" onClick={handleLogout}>

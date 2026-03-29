@@ -3,6 +3,7 @@ import Header from "../../common/header/Header";
 import Footer from "../../common/footer/Footer";
 import { get_user_profile } from "../../../api/auth/Auth";
 import { Update_User_Profile } from "../../../api/auth/Auth";
+import { IMG_BASE_URL } from "../../../config/Config";
 
 const User_Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -50,49 +51,49 @@ const User_Profile = () => {
     fetchProfile();
   }, []);
 
- // Handle input change
-const handleChange = (e) => {
-  const { name, value, files } = e.target;
-  if (files && files[0]) {
-    // Set selected image file
-    setFormData((prev) => ({ ...prev, [name]: files[0] }));
-  } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-};
-
-// Handle form submit
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setSuccess("");
-
-  try {
-    const payload = new FormData();
-
-    payload.append("phone", formData.phone);
-    payload.append("alternative_number", formData.alternative_number);
-    payload.append("address", formData.address);
-    payload.append("pin_code", formData.pin_code);
-    payload.append("bio", formData.bio);
-
-    if (formData.profileImage) {
-      payload.append("profileImage", formData.profileImage); // 🔹 this sends the file
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (files && files[0]) {
+      // Set selected image file
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
 
-    const token = localStorage.getItem("user_token");
-    const response = await Update_User_Profile(payload, token);
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-    if (response.status === 200) {
-      setProfile(response.data.data);
-      setSuccess("Profile updated successfully!");
-      setFormData((prev) => ({ ...prev, profileImage: null })); // reset file input
+    try {
+      const payload = new FormData();
+
+      payload.append("phone", formData.phone);
+      payload.append("alternative_number", formData.alternative_number);
+      payload.append("address", formData.address);
+      payload.append("pin_code", formData.pin_code);
+      payload.append("bio", formData.bio);
+
+      if (formData.profileImage) {
+        payload.append("profileImage", formData.profileImage); // 🔹 this sends the file
+      }
+
+      const token = localStorage.getItem("user_token");
+      const response = await Update_User_Profile(payload, token);
+
+      if (response.status === 200) {
+        setProfile(response.data.data);
+        setSuccess("Profile updated successfully!");
+        setFormData((prev) => ({ ...prev, profileImage: null })); // reset file input
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err?.response?.data?.message || "Failed to update profile");
     }
-  } catch (err) {
-    console.error(err);
-    setError(err?.response?.data?.message || "Failed to update profile");
-  }
-};
+  };
 
   return (
     <div>
@@ -116,8 +117,10 @@ const handleSubmit = async (e) => {
                     <img
                       src={
                         formData.profileImage
-                          ? URL.createObjectURL(formData.profileImage)
-                          : profile.profileImage || "/default-user.png"
+                          ? URL.createObjectURL(formData.profileImage) // preview selected image
+                          : profile.profileImage
+                            ? `${IMG_BASE_URL}${profile.profileImage}` // backend image
+                            : "/default-user.png"
                       }
                       alt="Profile"
                       className="rounded-circle border mb-3"

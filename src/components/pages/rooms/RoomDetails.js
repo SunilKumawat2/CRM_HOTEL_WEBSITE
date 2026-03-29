@@ -13,31 +13,35 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import { IMG_BASE_URL } from "../../../config/Config";
 import MotionLoader from "../../common/motionloader/MotionLoader";
-import { createRazorpayOrder, verifyRazorPayPayment } from "../../../api/rooms/Rooms";
+import {
+  createRazorpayOrder,
+  verifyRazorPayPayment,
+} from "../../../api/rooms/Rooms";
 import { toast } from "react-toastify";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { addMonths } from "date-fns";
+import { get_user_profile } from "../../../api/auth/Auth";
 
 const RoomDetails = () => {
   const navigate = useNavigate();
   const { _id } = useParams(); // 🔑 get ID from URL
   const [room, setRoom] = useState(null);
-  console.log("setRoom_setRoom", room)
+  console.log("setRoom_setRoom", room);
   const [related_room, setRelatedRoom] = useState([]);
   const [loading, setLoading] = useState(true);
-  const get_user_id = localStorage.getItem("user_id")
+  const [user, setUser] = useState(null);
+  console.log("user_user_user", user);
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [range, setRange] = useState([
     {
       startDate: new Date(),
       endDate: null,
-      key: 'selection'
-    }
+      key: "selection",
+    },
   ]);
-
 
   useEffect(() => {
     fetchRoomDetails();
@@ -87,9 +91,8 @@ const RoomDetails = () => {
       // Step 1: Create order on backend
       const orderData = await createRazorpayOrder(
         room._id,
-        userId,
-        checkInDate,
-        checkOutDate
+        checkInDate.toISOString(), // ✅ IMPORTANT
+        checkOutDate.toISOString(), // ✅ IMPORTANT
       );
 
       if (!orderData.success) {
@@ -119,7 +122,7 @@ const RoomDetails = () => {
 
             if (verify.success) {
               toast.success("Payment successful! Room booked.");
-              navigate("/booking-success");
+               navigate("/booking-success", { state: { booking: verify.booking } });
             } else {
               toast.error("Payment verification failed!");
             }
@@ -130,9 +133,9 @@ const RoomDetails = () => {
         },
 
         prefill: {
-          name: localStorage.getItem("user_name") || "",
-          email: localStorage.getItem("user_email") || "",
-          contact: localStorage.getItem("user_phone") || "",
+          name: user?.name || "",
+          email: user?.email || "",
+          contact: user?.phone || "",
         },
 
         theme: { color: "#007BFF" },
@@ -145,11 +148,19 @@ const RoomDetails = () => {
         console.error("Payment Failed:", response.error);
         toast.error("Payment failed! Please try again.");
       });
-
     } catch (err) {
       console.error("Error:", err);
       toast.error(err.message || "Something went wrong!");
     }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    const res = await get_user_profile();
+    setUser(res.data.data);
   };
 
   const getDisabledDates = (bookedDates) => {
@@ -192,9 +203,10 @@ const RoomDetails = () => {
   if (loading) return <p>Loading room details...</p>;
   if (!room) return <p>No room data found</p>;
 
-  const amount = room.discountedPrice > 0
-    ? room.baseRate - room.discountedPrice
-    : room.baseRate;
+  const amount =
+    room.discountedPrice > 0
+      ? room.baseRate - room.discountedPrice
+      : room.baseRate;
 
   // 🔹 STATIC HOTEL VIDEOS
   const hotelVideos = [
@@ -220,7 +232,7 @@ const RoomDetails = () => {
               {room?.images?.map((img, index) => (
                 <SwiperSlide key={index}>
                   <img
-                    src={`${IMG_BASE_URL}/${img}`}
+                    src={`${IMG_BASE_URL}/uploads/photos/${img}`}
                     alt={`Room Image ${index + 1}`}
                     className="room-main-image"
                   />
@@ -425,7 +437,8 @@ const RoomDetails = () => {
             </p>
 
             <p>
-              <strong>Total Price:</strong> ₹{getTotalPrice()}
+              <strong>Total Price:</strong>{" "}
+              <span className="new-price">₹{getTotalPrice()}</span>
             </p>
           </div>
           <div className="row" style={{ display: "flex", gap: "10px" }}>
@@ -461,7 +474,7 @@ const RoomDetails = () => {
                   <SwiperSlide key={room.id}>
                     <div className="related-room-card">
                       <img
-                        src={`${IMG_BASE_URL}${room?.images[0]}`}
+                        src={`${IMG_BASE_URL}/uploads/photos/${room?.images[0]}`}
                         alt={room.roomType}
                         className="related-room-img"
                       />

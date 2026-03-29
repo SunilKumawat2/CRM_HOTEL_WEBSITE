@@ -52,8 +52,8 @@ export const get_user_profile = async () => {
 // <----------------  Admin Status Form ----------------->
 export const Update_User_Profile = async (formData, token) => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-user-profile`,
+    const response = await axios.put(
+      `${API_BASE_URL}update-user-profile`,
       formData,
       {
         headers: {

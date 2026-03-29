@@ -2260,3 +2260,256 @@
           font-weight: 600;
           font-size: 14px;
         }
+
+        /* Booking_Success.css */
+
+/* Background gradient */
+.booking-success-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Card */
+.booking-success-card {
+  background-color: white;
+  border-radius: 20px;
+  max-width: 900px;
+  width: 100%;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border-top: 8px solid #4ade80; /* green top border */
+}
+
+/* Success Icon */
+.booking-success-icon {
+  font-size: 70px;
+  color: #4ade80;
+  margin-bottom: 15px;
+  animation: bounce 1s infinite;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Heading */
+.booking-success-card h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.booking-success-card p.subtitle {
+  text-align: center;
+  color: #4b5563;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+/* Grid Booking Info */
+.booking-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.booking-info-card {
+  background-color: #f3f4f6;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.booking-info-card p.label {
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.booking-info-card p.value {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Rooms Table */
+.rooms-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.rooms-table th,
+.rooms-table td {
+  border: 1px solid #d1d5db;
+  padding: 12px;
+  text-align: center;
+}
+
+.rooms-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.rooms-table tr:nth-child(even) {
+  background-color: #f3f4f6;
+}
+
+/* Buttons */
+.booking-success-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.booking-success-buttons button {
+  padding: 12px 25px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.booking-success-buttons .btn-invoice {
+  background-color: #2563eb;
+  color: white;
+}
+
+.booking-success-buttons .btn-invoice:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-3px);
+}
+
+.booking-success-buttons .btn-bookings {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.booking-success-buttons .btn-bookings:hover {
+  background-color: #d1d5db;
+  transform: translateY(-3px);
+}
+
+/* Container */
+.my-bookings-page {
+  padding: 40px;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Grid */
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+/* Booking Card */
+.booking-card {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.booking-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+/* Header */
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, #34d399, #10b981);
+  color: #fff;
+}
+
+.booking-number {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.status-badge.confirmed {
+  background-color: #10b981;
+}
+
+.status-badge.cancelled {
+  background-color: #ef4444;
+}
+
+.status-badge.pending {
+  background-color: #facc15;
+}
+
+/* Booking Info */
+.booking-info {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  color: #555;
+}
+
+.booking-info p {
+  margin: 5px 0;
+}
+
+.payment-status.paid {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.payment-status.unpaid {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;   /* ✅ next line me shift hoga */
+  gap: 8px;
+  padding: 0;
+  margin: 10px 0;
+  list-style: none;
+}
+
+.amenity-item {
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #333;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
